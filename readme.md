@@ -1,7 +1,7 @@
 ﻿AngularOverlay Directive
 ===============
 
-![AngularOverlay Directive Example](https://raw.github.com/DanWahlin/AngularOverlay/master/AngularOverlay/content/images/appExample.png)
+![AngularOverlay Directive Example](https://raw.github.com/DanWahlin/AngularOverlay/master/content/images/appExample.png)
 
 The AngularOverlay directive intercepts $http and jQuery XHR calls and displays and overlay. To get started using it follows these steps:
 
