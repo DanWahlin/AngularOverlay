@@ -1,14 +1,14 @@
 ﻿AngularOverlay Directive
 ===============
 
-![AngularOverlay Directive Example](https://raw.github.com/DanWahlin/CustomerManager/master/CustomerManager/Content/images/appExample.png)
+![AngularOverlay Directive Example](https://raw.github.com/DanWahlin/AngularOverlay/master/AngularOverlay/content/images/appExample.png)
 
 The AngularOverlay directive intercepts $http and jQuery XHR calls and displays and overlay. To get started using it follows these steps:
 
 1. Add the directive script located in app/directives/wcAngularOverlay.js into your project and reference the wc.Directives module:
 2. Reference the wc.Directives module:
 
-angular.module('customersApp', ['ngRoute', 'wc.Directives']);
+	angular.module('customersApp', ['ngRoute', 'wc.Directives']);
 
 3. Add the following styles into a CSS stylesheet (tweak as needed):
 
