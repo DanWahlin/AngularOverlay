@@ -30,7 +30,9 @@ angular.module('customersApp', ['ngRoute', 'wc.Directives']);
 
 Once you have the code locally, install [Node.js](http://nodejs.org), open a command-prompt and run:
 
+```
 node server.js
+```
 
 Then navigate to http://localhost:9000 in your browser to test out the project code and see the AngularOverlay directive in action.
 
