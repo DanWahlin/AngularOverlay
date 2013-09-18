@@ -1,0 +1,56 @@
+﻿<div class="customers view indent">
+    <div class="container">
+        <header>
+            <h3>Customer Report</h3>
+            <br />
+            <button class="btn btn-primary" data-ng-click="refreshCustomers()">Refresh Customers</button>
+        </header>
+        <br />
+        <div>            
+            <div class="row">
+                <div class="span10">
+                    <h4>Existing Customers</h4>
+                    <table class="table table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Orders</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-ng-repeat="customer in existingCustomers">
+                                <td>{{customer.firstName + ' ' + customer.lastName}}</td>
+                                <td>{{customer.city}}, {{customer.state}}</td>
+                                <td>{{ customer.orderCount }} Orders</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br />
+                    <h4>New Customers</h4>
+                    <table class="table table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Orders</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-ng-repeat="customer in newCustomers">
+                                <td>{{customer.firstName + ' ' + customer.lastName}}</td>
+                                <td>{{customer.city}}, {{customer.state}}</td>
+                                <td>{{ customer.orderCount }} Orders</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.onload = function () {
+        alert('in')
+    }
+</script>
