@@ -1,5 +1,6 @@
-angular.module('customersApp')
-    .factory('customersService', ['$http', function ($http) {
+(function () {
+
+    var customersService = function ($http) {
 
         var serviceBase = '/api/dataservice/',
             customersFactory = {};
@@ -11,7 +12,12 @@ angular.module('customersApp')
         customersFactory.getNewCustomers = function (path) {
             return $http.get(serviceBase + 'newcustomers');
         };
-   
+
         return customersFactory;
 
-    }]);
+    };
+
+    angular.module('customersApp').factory('customersService',
+        ['$http', customersService]);
+
+}());

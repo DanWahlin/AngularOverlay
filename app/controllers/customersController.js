@@ -1,10 +1,14 @@
-﻿angular.module('customersApp')
-    .controller('CustomersController', ['$scope', 'customersService',
-    function ($scope, customersService) {
+﻿(function () {
+
+    var customersController = function ($scope, customersService) {
         $scope.existingCustomers = [];
         $scope.newCustomers = [];
 
         init();
+
+        $scope.refreshCustomers = function () {
+            init();
+        }
 
         function init() {
             getExistingCustomers();
@@ -28,8 +32,9 @@
                 alert(error.message);
             });
         }
+    };
 
-        $scope.refreshCustomers = function () {
-            init();
-        }
-}]);
+    angular.module('customersApp').controller('CustomersController',
+        ['$scope', 'customersService', customersController]);
+
+}());
