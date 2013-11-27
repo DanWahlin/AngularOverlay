@@ -42,7 +42,7 @@
 
                     httpInterceptor.responseError = function (rejection) {
                         processResponse();
-                        return rejection || $q.when(rejection);
+                        return $q.reject(rejection);
                     };
                 }
 
