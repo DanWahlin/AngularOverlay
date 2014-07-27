@@ -1,6 +1,6 @@
 ﻿(function () {
 
-    var wcOverlayDirective = function ($q, $timeout, $window, httpInterceptor) {
+    var wcOverlayDirective = function ($q, $timeout, $window, httpInterceptor, wcOverlayConfig) {
         return {
             restrict: 'EA',
             transclude: true,
@@ -17,7 +17,8 @@
                     timerPromise = null,
                     timerPromiseHide = null,
                     inSession = false,
-                    queue = [];
+                    queue = [],
+                    overlayConfig = wcOverlayConfig.getConfig();
 
                 init();
 
@@ -31,7 +32,9 @@
                 function wireUpHttpInterceptor() {
 
                     httpInterceptor.request = function (config) {
-                        processRequest();
+                        //I want to have a condition to not show the overlay on specific calls
+                        if(shouldShowOverlay(config.method, config.url))
+                            processRequest();
                         return config || $q.when(config);
                     };
 
@@ -66,7 +69,7 @@
                     if (queue.length == 1) {
                         timerPromise = $timeout(function () {
                             if (queue.length) showOverlay();
-                        }, scope.wcOverlayDelay ? scope.wcOverlayDelay : 500); //Delay showing for 500 millis to avoid flicker
+                        }, scope.wcOverlayDelay ? scope.wcOverlayDelay : overlayConfig.delay); //Delay showing for 500 millis to avoid flicker
                     }
                 }
 
@@ -83,7 +86,7 @@
                                 hideOverlay();
                                 if (timerPromiseHide) $timeout.cancel(timerPromiseHide);
                             }
-                        }, scope.wcOverlayDelay ? scope.wcOverlayDelay : 500);
+                        }, scope.wcOverlayDelay ? scope.wcOverlayDelay : overlayConfig.delay);
                     }
                 }
 
@@ -133,6 +136,14 @@
                         return func(element, null)[style];
                     }
                 }();
+
+                function shouldShowOverlay(method, url){
+                    var searchCriteria = {
+                        method: method,
+                        url: url
+                    }
+                    return angular.isUndefined(_.find(overlayConfig.exceptUrls, searchCriteria));
+                }
             }
         }
     },
@@ -145,7 +156,50 @@
         return {}
     };
 
+    var wcOverlayConfig = function(){
+
+        //default config
+        var config = {
+            delay: 500,
+            exceptUrls: []
+        };
+
+        //set delay
+        this.setDelay = function(delayTime){
+            config.delay = delayTime;
+        };
+
+        //set exception urls
+        this.setExceptionUrls = function(urlList){
+            config.exceptUrls = urlList;
+        }
+
+        this.$get = function(){
+            return {
+                getDelayTime: getDelayTime,
+                getExceptUrls: getExceptUrls,
+                getConfig: getConfig
+            };
+
+            function getDelayTime(){
+                return config.delay;
+            }
+
+            function getExceptUrls(){
+                return config.exceptUrls;
+            }
+
+            function getConfig(){
+                return config;
+            }
+        };
+    }
+
     var wcDirectivesApp = angular.module('wc.Directives', []);
+
+    //provider service to setup overlay configuration in the app.config
+    //this will configure the delay and the APIs which you don't want to show overlay on
+    wcDirectivesApp.provider('wcOverlayConfig', wcOverlayConfig);
 
     //Empty factory to hook into $httpProvider.interceptors
     //Directive will hookup request, response, and responseError interceptors
@@ -157,6 +211,6 @@
     //Directive that uses the httpInterceptor factory above to monitor XHR calls
     //When a call is made it displays an overlay and a content area 
     //No attempt has been made at this point to test on older browsers
-    wcDirectivesApp.directive('wcOverlay', ['$q', '$timeout', '$window', 'httpInterceptor', wcOverlayDirective]);
+    wcDirectivesApp.directive('wcOverlay', ['$q', '$timeout', '$window', 'httpInterceptor','wcOverlayConfig', wcOverlayDirective]);
 
 }());
