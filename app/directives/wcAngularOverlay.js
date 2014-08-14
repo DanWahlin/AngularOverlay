@@ -142,7 +142,18 @@
                         method: method,
                         url: url
                     }
-                    return angular.isUndefined(_.find(overlayConfig.exceptUrls, searchCriteria));
+                    return angular.isUndefined(findUrl(overlayConfig.exceptUrls, searchCriteria));
+                }
+
+                function findUrl(urlList, searchCriteria){
+                    var retVal = undefined;
+                    angular.forEach(urlList, function(url){
+                        if(angular.equals(url, searchCriteria)){
+                            retVal = true;
+                            return false; //break out of forEach
+                        }
+                    });
+                    return retVal;
                 }
             }
         }
