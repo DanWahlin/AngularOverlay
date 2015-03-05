@@ -1,6 +1,9 @@
 ﻿(function () {
+    var getOverlayContainer = function() {
+        return document.getElementById('overlay-container');
+    }
 
-    var wcOverlayDirective = function ($q, $timeout, $window, httpInterceptor, wcOverlayConfig) {
+    var wcOverlayDirective = function ($q, $timeout, httpInterceptor, wcOverlayConfig, overlayDisplayService) {
         return {
             restrict: 'EA',
             transclude: true,
@@ -25,7 +28,7 @@
                 function init() {
                     wireUpHttpInterceptor();
                     if (window.jQuery) wirejQueryInterceptor();
-                    overlayContainer = document.getElementById('overlay-container');
+                    overlayContainer = getOverlayContainer();
                 }
 
                 //Hook into httpInterceptor factory request/response/responseError functions                
@@ -91,51 +94,13 @@
                 }
 
                 function showOverlay() {
-                    var w = 0;
-                    var h = 0;
-                    if (!$window.innerWidth) {
-                        if (!(document.documentElement.clientWidth == 0)) {
-                            w = document.documentElement.clientWidth;
-                            h = document.documentElement.clientHeight;
-                        }
-                        else {
-                            w = document.body.clientWidth;
-                            h = document.body.clientHeight;
-                        }
-                    }
-                    else {
-                        w = $window.innerWidth;
-                        h = $window.innerHeight;
-                    }
-                    var content = document.getElementById('overlay-content');
-                    var contentWidth = parseInt(getComputedStyle(content, 'width').replace('px', ''));
-                    var contentHeight = parseInt(getComputedStyle(content, 'height').replace('px', ''));
-
-                    content.style.top = h / 2 - contentHeight / 2 + 'px';
-                    content.style.left = w / 2 - contentWidth / 2 + 'px'
-
-                    overlayContainer.style.display = 'block';
+                    overlayDisplayService.show(overlayContainer);
                 }
 
                 function hideOverlay() {
                     if (timerPromise) $timeout.cancel(timerPromise);
-                    overlayContainer.style.display = 'none';
+                    overlayDisplayService.hide(overlayContainer);
                 }
-
-                var getComputedStyle = function () {
-                    var func = null;
-                    if (document.defaultView && document.defaultView.getComputedStyle) {
-                        func = document.defaultView.getComputedStyle;
-                    } else if (typeof (document.body.currentStyle) !== "undefined") {
-                        func = function (element, anything) {
-                            return element["currentStyle"];
-                        };
-                    }
-
-                    return function (element, style) {
-                        return func(element, null)[style];
-                    }
-                }();
 
                 function shouldShowOverlay(method, url){
                     var searchCriteria = {
@@ -219,9 +184,60 @@
     //Hook httpInterceptor factory into the $httpProvider interceptors so that we can monitor XHR calls
     wcDirectivesApp.config(['$httpProvider', httpProvider]);
 
+    //expose overlay show / hide functionality
+    wcDirectivesApp.service('overlayDisplayService', ['$window', function($window){
+        var getComputedStyle = function () {
+            var func = null;
+            if (document.defaultView && document.defaultView.getComputedStyle) {
+                func = document.defaultView.getComputedStyle;
+            } else if (typeof (document.body.currentStyle) !== "undefined") {
+                func = function (element, anything) {
+                    return element["currentStyle"];
+                };
+            }
+
+            return function (element, style) {
+                return func(element, null)[style];
+            }
+        }();
+
+        this.hide = function(overlayContainer) {
+            overlayContainer = overlayContainer || getOverlayContainer();
+            overlayContainer.style.display = 'none';
+        };
+
+        this.show = function(overlayContainer){
+            overlayContainer = overlayContainer || getOverlayContainer();
+            var w = 0;
+            var h = 0;
+            if (!$window.innerWidth) {
+                if (!(document.documentElement.clientWidth == 0)) {
+                    w = document.documentElement.clientWidth;
+                    h = document.documentElement.clientHeight;
+                }
+                else {
+                    w = document.body.clientWidth;
+                    h = document.body.clientHeight;
+                }
+            }
+            else {
+                w = $window.innerWidth;
+                h = $window.innerHeight;
+            }
+            var content = document.getElementById('overlay-content');
+            var contentWidth = parseInt(getComputedStyle(content, 'width').replace('px', ''));
+            var contentHeight = parseInt(getComputedStyle(content, 'height').replace('px', ''));
+
+            content.style.top = h / 2 - contentHeight / 2 + 'px';
+            content.style.left = w / 2 - contentWidth / 2 + 'px'
+
+            overlayContainer.style.display = 'block';
+        };
+    }]);
+
     //Directive that uses the httpInterceptor factory above to monitor XHR calls
     //When a call is made it displays an overlay and a content area 
     //No attempt has been made at this point to test on older browsers
-    wcDirectivesApp.directive('wcOverlay', ['$q', '$timeout', '$window', 'httpInterceptor','wcOverlayConfig', wcOverlayDirective]);
+    wcDirectivesApp.directive('wcOverlay', ['$q', '$timeout',  'httpInterceptor','wcOverlayConfig', 'overlayDisplayService', wcOverlayDirective]);
 
 }());
